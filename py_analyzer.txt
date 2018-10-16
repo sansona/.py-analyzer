@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#Initializing bash script. Script should analyze contents of .py file & return 
+information about script
