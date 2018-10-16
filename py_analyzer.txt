@@ -1,4 +1,115 @@
 #!/bin/bash
 
-#Initializing bash script. Script should analyze contents of .py file & return 
-information about script
+#------------------------------------------------------------------------------
+# bash script to do cursory analysis of .py files. Able to take in single 
+# files, multiple files, or directories
+#
+# Usage: ~$ ./py_analyzer filename1 filename2 ...
+#------------------------------------------------------------------------------
+
+function echo_metadata() {
+	# Usage: get_metadata filename1 filename2 ...
+	if [[ "$#" == 1 ]]; then
+		NUM_BYTES=$(cat "$1" | wc -c)
+		NUM_WORDS=$(cat "$1" | wc -m)
+		NUM_LINE=$(cat "$1" | wc -l)
+		LAST_MOD_TIME=$(date -r "$1" +'%Y-%m-%d %H:%M:%S')
+	elif [[ "$#" > 1 ]]; then
+		# if multiple files passed, iteratively count nums across files
+		let NUM_BYTES=NUM_WORDS=NUM_LINE=0
+		for file in "$@"
+		do
+			((NUM_BYTES = NUM_BYTES + $(cat "$file" | wc -c )))
+			((NUM_WORDS = NUM_WORDS + $(cat "$file" | wc -m )))
+			((NUM_LINE = NUM_LINE + $(cat "$file" | wc -l )))
+		done
+	fi
+
+	echo -e "FILE METADATA:
+	Byte count = $NUM_BYTES
+	Word count = $NUM_WORDS
+	Line count = $NUM_LINE
+	Last modified time = $LAST_MOD_TIME"
+}
+
+#------------------------------------------------------------------------------
+
+function echo_keywords() {
+	# 
+	# Usage: echo_keywords file_contents1 file_contents2 ...
+	if [[ "$#" == 1 ]]; then
+		NUM_IMPORT=$(echo "$1" | grep -c import)
+		NUM_FUNCTION_INIT=$(echo "$1" | grep -c def)
+		NUM_COMMENTS=$(echo "$1" | grep -c '#')
+		NUM_IF=$(echo "$1" | grep -c "if")
+		NUM_ELIF=$(echo "$1" | grep -c elif)
+		NUM_ELSE=$(echo "$1" | grep -c else)
+		NUM_WHILE=$(echo "$1" | grep -c "^while")
+		NUM_FOR=$(echo "$1" | grep -c "^for")
+		NUM_LIST_INIT=$(echo "$1" | grep -c "\[\]")
+	elif [[ "$#" > 1 ]]; then
+		let NUM_IMPORT=NUM_FUNCTION_INIT=NUM_COMMENTS=NUM_IF=NUM_ELIF=NUM_ELSE=NUM_WHILE=NUM_FOR=NUM_LIST_INIT=0
+		for file in "$@"
+		do 
+		((NUM_IMPORT = NUM_IMPORT + $(echo "$1" | grep -c import)))
+		((NUM_FUNCTION_INIT = NUM_FUNCTION_INIT + $(echo "$1" | grep -c def)))
+		((NUM_COMMENTS = NUM_COMMENTS + $(echo "$1" | grep -c '#')))
+		((NUM_IF = NUM_IF + $(echo "$1" | grep -c "if")))
+		((NUM_ELIF = NUM_ELIF + $(echo "$1" | grep -c elif)))
+		((NUM_ELSE = NUM_ELSE + $(echo "$1" | grep -c else)))
+		((NUM_WHILE = NUM_WHILE + $(echo "$1" | grep -c "^while")))
+		((NUM_FOR = NUM_FOR + $(echo "$1" | grep -c "^for")))
+		((NUM_LIST_INIT = NUM_LIST_INIT + $(echo "$1" | grep -c "\[\]")))
+	done
+	fi
+
+	echo -e "KEYWORD ANALYSIS:
+	# imports = $NUM_IMPORT
+	# function init = $NUM_FUNCTION_INIT
+	# comment lines = $NUM_COMMENTS
+	# if = $NUM_IF
+	# elif = $NUM_ELIF
+	# while = $NUM_WHILE
+	# for loops = $NUM_FOR 
+	# List init = $NUM_LIST_INIT
+	"
+
+}
+
+#------------------------------------------------------------------------------
+
+if [[ "$#" == 0 ]]; then
+	echo "Usage: ./py_analyzer.txt [file.py] [dir]"
+
+elif [[ "$#" == 1 ]]; then
+	# for 1 arg
+	ARG1=$1
+	if [[ "$ARG1" == *.py ]]; then
+    	FILE_CONTENT1=$(cat "$ARG1")
+    	echo_metadata $ARG1 
+    	echo_keywords "$FILE_CONTENT1"
+	elif [[ -d "$ARG1" ]]; then
+		# if directory, cat all .py into DIR_CONTENT
+    	cd "$ARG1"
+    	DIR_CONTENT=$(find *.py -exec cat {} \;)
+	fi
+
+else
+	# if more than one .py file in arg, cat all into ALL_FILE_CONTENT
+	ALL_FILE_CONTENT=$(cat "$@")
+	echo_metadata "$@"
+	echo_keywords "$ALL_FILE_CONTENT"
+fi
+
+#------------------------------------------------------------------------------
+
+
+
+# 4. Functionality
+  # export as html (-w)
+  	# run on .py in entire folder
+  	# run on multiple .py
+  # comparison on multiple .py (-c)
+  # print out just metadata -m
+  # print out just analysis (-a)
+  # print out specific imports, functions, etc 
