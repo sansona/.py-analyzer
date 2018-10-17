@@ -8,7 +8,7 @@
 #------------------------------------------------------------------------------
 
 function echo_metadata() {
-	# Usage: get_metadata filename1 filename2 ...
+	# Usage: echo_metadata filename1 filename2 ...
 	if [[ "$#" == 1 ]]; then
 		NUM_BYTES=$(cat "$1" | wc -c)
 		NUM_WORDS=$(cat "$1" | wc -m)
@@ -79,7 +79,7 @@ function echo_keywords() {
 #------------------------------------------------------------------------------
 
 if [[ "$#" == 0 ]]; then
-	echo "Usage: ./py_analyzer.txt [file.py] [dir]"
+	echo "Usage: $0 usage: $0 [file.py] [dir]"
 
 elif [[ "$#" == 1 ]]; then
 	# for 1 arg
@@ -103,13 +103,3 @@ fi
 
 #------------------------------------------------------------------------------
 
-
-
-# 4. Functionality
-  # export as html (-w)
-  	# run on .py in entire folder
-  	# run on multiple .py
-  # comparison on multiple .py (-c)
-  # print out just metadata -m
-  # print out just analysis (-a)
-  # print out specific imports, functions, etc 
